@@ -10,6 +10,6 @@ INSTALLATION
 
       git clone git://github.com/stephp/spree-product-lightbox.git product_lightbox
 
-Development of this extension is sponsored by [End Point][1] to learn more about spree.
+Development of this extension is sponsored by [End Point][1].
 
 [1]: http://www.endpoint.com/
