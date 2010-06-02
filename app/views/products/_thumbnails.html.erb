@@ -1,28 +1,47 @@
-<% if !product.images.empty? %>
+<!-- no need for thumnails unless there is more then one image -->
+<% if product.images.size > 1 %>
+  <ul id="product-thumbnails" class="thumbnails">
+    <% product.images.each do |i| %>
+      <li><%= link_to(image_tag(i.attachment.url(:mini)), i.attachment.url(:product)) %></li>
+    <% end %>
+  </ul>
+<% end %>
 
-  <% content_for :head do -%>
-    <script type="text/javascript" charset="utf-8">
-      var images = new Array();
-      <% @variants.each do |v| %>
-        images[<%= v.id.to_s %>] = new Array();
-        <% v.images.each_with_index do |image, i| %>
-          images[<%= v.id.to_s %>][<%= i %>] = <%= link_to(image_tag(image.attachment.url(:mini)), image.attachment.url(:product)).to_json %>;
+<% if @product.has_variants?
+  has_checked = false %>
+  <h4 id="variant-images">
+    <%= t('images_for') %>:
+    <span><%= @selected_variant.options_text %></span>
+  </h4>
+  <ul id="variant-thumbnails" class="thumbnails">
+    <% @variants.each do |v|
+        checked = !has_checked && (v.available?)
+   		  has_checked = true if checked
+
+        if checked
+          v.images.each do |i| %>
+            <li><%= link_to(image_tag(i.attachment.url(:mini)), i.attachment.url(:product)) %></li>
+          <% end %>
         <% end %>
       <% end %>
-    $(function() {
-	jQuery('#gallery a').lightBox();
+    </ul>
+<% end %>
+
+<% content_for :head do %>
+  <script type="text/javascript" charset="utf-8">
+    var images = new Array();
+    <% @variants.each do |v| %>
+      images[<%= v.id.to_s %>] = new Array();
+      <% v.images.each_with_index do |image, i| %>
+        images[<%= v.id.to_s %>][<%= i %>] = <%= link_to(image_tag(image.attachment.url(:mini)), image.attachment.url(:product)).to_json %>;
+      <% end %>
+    <% end %>
+    $(document).ready(function() {
+	jQuery('#product-thumbnails a').lightBox();
+	jQuery('#variant-thumbnails a').lightBox();
     });
     </script>
     <%= javascript_include_tag 'jquery.lightbox.js' %>
     <%= stylesheet_link_tag 'lightbox.css' %>
-  <% end -%>
-
-  <div id="gallery">
-    <ul id="variant-thumbnails" class="thumbnails">
-      <% @variants.select { |v| v.available? }.collect { |v| v.images }.flatten.uniq.each do |i| %>
-      <li><%= link_to image_tag(i.attachment.url(:mini)), i.attachment.url(:product), { :title => product.name } %></li>
-      <% end %>
-    </ul>
-  </div>
-
-<% end -%>
+  </script>
+<% end %>
